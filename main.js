@@ -271,7 +271,7 @@ Attacker.prototype.draw = function (ctx) {
 };
 
 // the "main" code begins here
-var friction = .96;
+var friction = .98;
 var acceleration = 1000000;
 var maxSpeed = 200;
 
