@@ -9,7 +9,7 @@
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 </head>
-<body>
+<body bgcolor="cornflowerblue">
     <div id='container' position='relative'>
         <canvas id="gameWorld" width="600" height="700"></canvas>
         <div id='cageBorder'></div>
@@ -22,6 +22,39 @@
         </div>
         <div id='blocker'></div>
         <div id='blocker2'></div>
+        <div id='description'>
+                Controls ------------------------------- <br/><br/>
+                Aim Cannon: Cursor <br/>
+                Fire Cannon: Left Click <br/>
+                <br/><br/>
+                Gameplay ------------------------------- <br/><br/>
+                Primary Colors: Red, Yellow, Blue <br/>
+                Secondary: Purple, Green, Orange <br/>
+                <br/>
+                16 Defending Orbs are randomly assigned <br/>
+                Either Primary or Secondary colors. <br/>
+                <br/>
+                Attacking Orbs are shot from the cannon, <br/>
+                but can only start as Primary colors. <br/>
+                <br/>
+                If an attacking orb hits a defender with <br/>
+                a primary color, and the colors match, <br/>
+                the defender dies. <br/>
+                <br/>
+                If the defender is Primary, but does not <br/>
+                match, the attackers color is added to the <br/>
+                defender. <br/>
+                <br/>
+                If the defender is a secondary color and, <br/>
+                that color contains the attackers primary <br/>
+                color, that color is removed from the color <br/>
+                of the defender.
+                <br/>
+                Attackers bounce off of the top border, <br/>
+                but disappear if they pass the bottom. <br/>
+                <br/>
+                HAVE FUN! ~ Caleb Smith.
+        </div>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
