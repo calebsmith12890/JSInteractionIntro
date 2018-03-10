@@ -287,16 +287,6 @@ ASSET_MANAGER.downloadAll(function () {
 
     var gameEngine = new GameEngine();
 
-    for (var i = 0; i < 16; i++) {
-        circle = new Circle(gameEngine);
-        gameEngine.addEntity(circle);
-    }
-
-    for (var i = 0; i < 4; i++) {
-        atk = new Attacker(gameEngine);
-        gameEngine.attackers.push(atk);
-    }
-
     gameEngine.init(ctx);
     gameEngine.start();
 });

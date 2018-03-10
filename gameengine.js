@@ -41,6 +41,7 @@ function GameEngine() {
     this.wheel = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    this.paused = false;
     this.auto = true;
     this.angle = 0;
 
@@ -61,6 +62,8 @@ GameEngine.prototype.init = function (ctx) {
     this.surfaceWidth = this.ctx.canvas.width;
     this.surfaceHeight = this.ctx.canvas.height;
     this.startInput();
+    this.stockDefenders();
+    this.stockAttackers();
     this.setAttackers();
     this.timer = new Timer();
     console.log('game initialized');
@@ -87,7 +90,7 @@ GameEngine.prototype.startInput = function () {
     }
 
     this.ctx.canvas.addEventListener("mousemove", function (e) {
-        //console.log(getXandY(e));
+        // console.log(getXandY(e));
         that.mouse = getXandY(e);
         if (!that.auto) {
             that.angle = Math.atan2(e.pageX - 300, - (e.pageY - 700) )*(180/Math.PI);
@@ -112,11 +115,28 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        that.rightclick = getXandY(e);
+        if (e.which === 65) that.auto = !that.auto;
+        if (e.which === 80) that.paused = !that.paused;
         e.preventDefault();
     }, false);    
 
     console.log('Input started');
+}
+
+GameEngine.prototype.stockDefenders = function () {
+
+    for (var i = 0; i < 16; i++) {
+        circle = new Circle(this);
+        this.addEntity(circle);
+    }
+}
+
+GameEngine.prototype.stockAttackers = function () {
+
+    for (var i = 0; i < 4; i++) {
+        atk = new Attacker(this);
+        this.attackers.push(atk);
+    }
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -167,7 +187,7 @@ GameEngine.prototype.setAttackers = function () {
 }
 
 GameEngine.prototype.fireAttacker = function () {
-    console.log('fired attacker');
+    // console.log('fired attacker');
     atk = this.attackers[0];
     atk.velocity = this.bV;
     this.entities.push(atk);
@@ -177,7 +197,7 @@ GameEngine.prototype.fireAttacker = function () {
 }
 
 GameEngine.prototype.reloadAttacker = function () {
-    console.log('reload attackers');
+    // console.log('reload attackers');
     atk = new Attacker(this);
     this.attackers.push(atk);
 }
@@ -202,15 +222,19 @@ GameEngine.prototype.update = function () {
     if (this.auto) {
         var chance = getRandomIntRange(0, 100);
 
-        if (chance < 5) {
+        if (chance < 3) {
             this.fireAttacker();
         }
-        else if (chance < 30) {
+        else if (chance < 29) {
             this.rotateChange(getRandomIntRange(0, 3));
         }
         else if (chance < 55) {
             this.rotateChange(-getRandomIntRange(0, 3));
         }
+    }
+
+    if (this.entities.length < 1) {
+        this.stockDefenders();
     }
 
     if (this.attackers.length > 0) {
@@ -233,9 +257,11 @@ GameEngine.prototype.update = function () {
 }
 
 GameEngine.prototype.loop = function () {
-    this.clockTick = this.timer.tick();
-    this.update();
-    this.draw();
+    if (!this.paused) {
+        this.clockTick = this.timer.tick();
+        this.update();
+        this.draw();
+    }
     this.click = null;
     this.rightclick = null;
     this.wheel = null;
