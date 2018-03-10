@@ -11,6 +11,9 @@ window.requestAnimFrame = (function () {
             };
 })();
 
+function getRandomIntRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 function Timer() {
     this.gameTime = 0;
@@ -38,6 +41,8 @@ function GameEngine() {
     this.wheel = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    this.auto = true;
+    this.angle = 0;
 
     this.b1X = 290;
     this.b1Y = 500;
@@ -84,24 +89,10 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("mousemove", function (e) {
         //console.log(getXandY(e));
         that.mouse = getXandY(e);
-        var angle = Math.atan2(e.pageX - 300, - (e.pageY - 700) )*(180/Math.PI);
-
-        var vX = 650*Math.sin(angle*(Math.PI/180));
-        var vY = 650*Math.cos(angle*(Math.PI/180));
-
-        that.bV = {x: vX, y: -vY};
-
-        $('#rotateme').css({ "-webkit-transform": 'rotate(' + angle + 'deg)'});    
-        $('#rotateme').css({ '-moz-transform': 'rotate(' + angle + 'deg)'});
-        
-        that.b1X = $('#center1').offset().left - 20;
-        that.b1Y = $('#center1').offset().top - 20
-        that.b2X = $('#center2').offset().left - 20;
-        that.b2Y = $('#center2').offset().top - 20
-        that.b3X = $('#center3').offset().left - 20;
-        that.b3Y = $('#center3').offset().top - 20
-        that.b4X = $('#center4').offset().left - 20;
-        that.b4Y = $('#center4').offset().top - 20;
+        if (!that.auto) {
+            that.angle = Math.atan2(e.pageX - 300, - (e.pageY - 700) )*(180/Math.PI);
+            that.rotateCannon(that.angle);
+        }
 
     }, false);
 
@@ -120,12 +111,47 @@ GameEngine.prototype.startInput = function () {
         e.preventDefault();
     }, false);
 
+    this.ctx.canvas.addEventListener("keydown", function (e) {
+        that.rightclick = getXandY(e);
+        e.preventDefault();
+    }, false);    
+
     console.log('Input started');
 }
 
 GameEngine.prototype.addEntity = function (entity) {
     console.log('added entity');
     this.entities.push(entity);
+}
+
+GameEngine.prototype.rotateCannon = function (angle) {
+
+    var vX = 650*Math.sin(angle*(Math.PI/180));
+    var vY = 650*Math.cos(angle*(Math.PI/180));
+
+    this.bV = {x: vX, y: -vY};
+
+    $('#rotateme').css({ "-webkit-transform": 'rotate(' + angle + 'deg)'});    
+    $('#rotateme').css({ '-moz-transform': 'rotate(' + angle + 'deg)'});
+    
+    this.b1X = $('#center1').offset().left - 20;
+    this.b1Y = $('#center1').offset().top - 20
+    this.b2X = $('#center2').offset().left - 20;
+    this.b2Y = $('#center2').offset().top - 20
+    this.b3X = $('#center3').offset().left - 20;
+    this.b3Y = $('#center3').offset().top - 20
+    this.b4X = $('#center4').offset().left - 20;
+    this.b4Y = $('#center4').offset().top - 20;
+}
+
+GameEngine.prototype.rotateChange = function (change) {
+
+    this.angle += change;
+    if (this.angle > 65) this.angle = 65;
+    else if (this.angle < -65) this.angle = -65;
+
+    this.rotateCannon(this.angle);
+
 }
 
 GameEngine.prototype.setAttackers = function () {
@@ -172,6 +198,20 @@ GameEngine.prototype.draw = function () {
 
 GameEngine.prototype.update = function () {
     var entitiesCount = this.entities.length;
+
+    if (this.auto) {
+        var chance = getRandomIntRange(0, 100);
+
+        if (chance < 5) {
+            this.fireAttacker();
+        }
+        else if (chance < 30) {
+            this.rotateChange(getRandomIntRange(0, 3));
+        }
+        else if (chance < 55) {
+            this.rotateChange(-getRandomIntRange(0, 3));
+        }
+    }
 
     if (this.attackers.length > 0) {
         this.setAttackers();
