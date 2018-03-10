@@ -30,6 +30,7 @@ Timer.prototype.tick = function () {
 
 function GameEngine() {
     this.entities = [];
+    this.attackers = [];
     this.showOutlines = false;
     this.ctx = null;
     this.click = null;
@@ -37,6 +38,17 @@ function GameEngine() {
     this.wheel = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+
+    this.b1X = 290;
+    this.b1Y = 500;
+    this.b2X = 290;
+    this.b2Y = 550;
+    this.b3X = 290;
+    this.b3Y = 600;
+    this.b4X = 290;
+    this.b4Y = 650;
+
+    this.bV = {x: 0, y: 200};
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -44,6 +56,7 @@ GameEngine.prototype.init = function (ctx) {
     this.surfaceWidth = this.ctx.canvas.width;
     this.surfaceHeight = this.ctx.canvas.height;
     this.startInput();
+    this.setAttackers();
     this.timer = new Timer();
     console.log('game initialized');
 }
@@ -71,22 +84,38 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("mousemove", function (e) {
         //console.log(getXandY(e));
         that.mouse = getXandY(e);
+        var angle = Math.atan2(e.pageX - 300, - (e.pageY - 700) )*(180/Math.PI);
+
+        var vX = 650*Math.sin(angle*(Math.PI/180));
+        var vY = 650*Math.cos(angle*(Math.PI/180));
+
+        that.bV = {x: vX, y: -vY};
+
+        $('#rotateme').css({ "-webkit-transform": 'rotate(' + angle + 'deg)'});    
+        $('#rotateme').css({ '-moz-transform': 'rotate(' + angle + 'deg)'});
+        
+        that.b1X = $('#center1').offset().left - 20;
+        that.b1Y = $('#center1').offset().top - 20
+        that.b2X = $('#center2').offset().left - 20;
+        that.b2Y = $('#center2').offset().top - 20
+        that.b3X = $('#center3').offset().left - 20;
+        that.b3Y = $('#center3').offset().top - 20
+        that.b4X = $('#center4').offset().left - 20;
+        that.b4Y = $('#center4').offset().top - 20;
+
     }, false);
 
     this.ctx.canvas.addEventListener("click", function (e) {
-        //console.log(getXandY(e));
         that.click = getXandY(e);
+        that.fireAttacker();
     }, false);
 
     this.ctx.canvas.addEventListener("wheel", function (e) {
-        //console.log(getXandY(e));
         that.wheel = e;
-        //       console.log(e.wheelDelta);
         e.preventDefault();
     }, false);
 
     this.ctx.canvas.addEventListener("contextmenu", function (e) {
-        //console.log(getXandY(e));
         that.rightclick = getXandY(e);
         e.preventDefault();
     }, false);
@@ -99,17 +128,54 @@ GameEngine.prototype.addEntity = function (entity) {
     this.entities.push(entity);
 }
 
+GameEngine.prototype.setAttackers = function () {
+
+    this.attackers[0].x = this.b1X;
+    this.attackers[0].y = this.b1Y;
+    this.attackers[1].x = this.b2X;
+    this.attackers[1].y = this.b2Y;
+    this.attackers[2].x = this.b3X;
+    this.attackers[2].y = this.b3Y;
+    this.attackers[3].x = this.b4X;
+    this.attackers[3].y = this.b4Y;
+}
+
+GameEngine.prototype.fireAttacker = function () {
+    console.log('fired attacker');
+    atk = this.attackers[0];
+    atk.velocity = this.bV;
+    this.entities.push(atk);
+    this.attackers.shift();
+    this.reloadAttacker();
+    this.setAttackers();
+}
+
+GameEngine.prototype.reloadAttacker = function () {
+    console.log('reload attackers');
+    atk = new Attacker(this);
+    this.attackers.push(atk);
+}
+
 GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     this.ctx.save();
     for (var i = 0; i < this.entities.length; i++) {
         this.entities[i].draw(this.ctx);
     }
+
+    for (var i = 0; i < this.attackers.length; i++) {
+        this.attackers[i].draw(this.ctx);
+    }
+
     this.ctx.restore();
 }
 
 GameEngine.prototype.update = function () {
     var entitiesCount = this.entities.length;
+
+    if (this.attackers.length > 0) {
+        this.setAttackers();
+    }
 
     for (var i = 0; i < entitiesCount; i++) {
         var entity = this.entities[i];
